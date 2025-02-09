@@ -17,9 +17,6 @@ Fast and fun rounds
 ## 📦 Installation
 
 ```bash
-bash
-Copy
-Edit
 git clone https://github.com/YourUsername/Tenzies.git
 cd Tenzies
 npm install

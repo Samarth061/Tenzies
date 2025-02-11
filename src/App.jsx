@@ -1,35 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from 'react'
+import './App.css';
+import Die from './Die';
+import { nanoid } from 'nanoid';
 
-function App() {
-  const [count, setCount] = useState(0)
+//Generate an array of dices with 10 random numbers
+function generateAllNewDice(){
+  return new Array(10)
+  .fill(0)
+  .map(()=> ({
+    value : Math.ceil(Math.random() * 6), 
+    holdIt: false,
+    id: nanoid()
+  }))
+}
+
+export default function () {
+  // Store the set of dices in a state to update it later
+  const [diceData, setDiceData] = React.useState(generateAllNewDice())
+
+  // Function to roll the dices and generate a new set
+  function newRoll(data){
+    setDiceData(prevData => generateAllNewDice())
+  }
+
+  // Map state data to Die component and store it in constant dices
+  const dices = diceData.map((dice) => 
+    <Die key={dice.id} value={dice.value} holdIt={dice.holdIt} hold={hold} id={dice.id}/>
+  )
+
+  //Function to update state when clicked
+  function hold(id){
+    setDiceData(prevData => prevData.map((dice)=> 
+      dice.id === id ? {...dice, holdIt: !dice.holdIt} : dice
+    ))
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <main>
+          <div className='front'>
+            <h1>Tenzies</h1>
+            <p className='rules'>Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
+            <div className='dice'>
+              {dices}
+            </div>
+            <button className='roll' onClick={() => newRoll(diceData)}>Roll</button>
+          </div>
+    </main>
   )
 }
 
-export default App
+

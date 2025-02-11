@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import './App.css';
 import Die from './Die';
 import { nanoid } from 'nanoid';
+import ReactConfetti from 'react-confetti';
 
 //Generate an array of dices with 10 random numbers
 function generateAllNewDice(){
+  console.log("Gen all called")
   return new Array(10)
   .fill(0)
   .map(()=> ({
@@ -21,7 +23,7 @@ export default function () {
   // Hold green dices and roll new dices
   function newRoll(){
     setDiceData(prevData => prevData.map
-      (die => die.holdIt ? {...die}
+      (die => die.holdIt ? die
          :{...die, value: Math.ceil(Math.random() * 6)}
       )
     )
@@ -34,20 +36,34 @@ export default function () {
 
   //Function to update state when clicked
   function hold(id){
-    setDiceData(prevData => prevData.map((dice)=> 
+    let newData;
+    setDiceData(prevData =>{
+      newData = prevData.map((dice)=> 
       dice.id === id ? {...dice, holdIt: !dice.holdIt} : dice
-    ))
+    ); 
+    return newData
+    })  
+  }
+
+  //Win function
+  let gameWon = false
+
+  if (diceData.every(die => die.holdIt) && 
+    diceData.every(die=> die.value === diceData[0].value)
+    ){
+    gameWon = true
   }
 
   return (
     <main>
+          {gameWon && <ReactConfetti />}
           <div className='front'>
             <h1>Tenzies</h1>
             <p className='rules'>Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
             <div className='dice'>
               {dices}
             </div>
-            <button className='roll' onClick={() => newRoll()}>Roll</button>
+            <button className='roll' onClick={() => newRoll()}>{gameWon ? "New Game": "Roll"}</button>
           </div>
     </main>
   )

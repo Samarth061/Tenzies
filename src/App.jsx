@@ -18,9 +18,13 @@ export default function () {
   // Store the set of dices in a state to update it later
   const [diceData, setDiceData] = React.useState(generateAllNewDice())
 
-  // Function to roll the dices and generate a new set
-  function newRoll(data){
-    setDiceData(prevData => generateAllNewDice())
+  // Hold green dices and roll new dices
+  function newRoll(){
+    setDiceData(prevData => prevData.map
+      (die => die.holdIt ? {...die}
+         :{...die, value: Math.ceil(Math.random() * 6)}
+      )
+    )
   }
 
   // Map state data to Die component and store it in constant dices
@@ -43,7 +47,7 @@ export default function () {
             <div className='dice'>
               {dices}
             </div>
-            <button className='roll' onClick={() => newRoll(diceData)}>Roll</button>
+            <button className='roll' onClick={() => newRoll()}>Roll</button>
           </div>
     </main>
   )

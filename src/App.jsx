@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import './App.css';
 import Die from './Die';
 import { nanoid } from 'nanoid';
 import ReactConfetti from 'react-confetti';
 
-//Generate an array of dices with 10 random numbers
+//Generate an array of 10 dices with random numbers
 function generateAllNewDice(){
   console.log("Gen all called")
   return new Array(10)
@@ -17,8 +17,10 @@ function generateAllNewDice(){
 }
 
 export default function () {
+  const rollRef = useRef(null);
+
   // Store the set of dices in a state to update it later
-  const [diceData, setDiceData] = React.useState(generateAllNewDice())
+  const [diceData, setDiceData] = React.useState(() => generateAllNewDice())
 
   // Hold green dices and roll new dices
   function newRoll(){
@@ -27,6 +29,16 @@ export default function () {
          :{...die, value: Math.ceil(Math.random() * 6)}
       )
     )
+    if(gameWon){
+      setDiceData(prevData => prevData.map(die => 
+        ({
+          ...die,
+          value : Math.ceil(Math.random() * 6), 
+          holdIt: false,
+        }
+        )
+      ))
+    }
   }
 
   // Map state data to Die component and store it in constant dices
@@ -54,16 +66,26 @@ export default function () {
     gameWon = true
   }
 
+  //Focus on New Game after game is over
+  useEffect(() => {
+    if(gameWon && rollRef.current){
+      rollRef.current.focus();
+    }
+  }, [gameWon])
+
   return (
     <main>
           {gameWon && <ReactConfetti />}
+          <div aria-live="polite" className='sr-only'>
+            {gameWon && <p>Congratulations! You won! Press "New Game" to start again.</p>}
+          </div>
           <div className='front'>
             <h1>Tenzies</h1>
             <p className='rules'>Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
             <div className='dice'>
               {dices}
             </div>
-            <button className='roll' onClick={() => newRoll()}>{gameWon ? "New Game": "Roll"}</button>
+            <button ref={rollRef} className='roll' onClick={() => newRoll()}>{gameWon ? "New Game": "Roll"}</button>
           </div>
     </main>
   )
